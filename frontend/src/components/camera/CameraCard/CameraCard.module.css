@@ -1,0 +1,115 @@
+.card {
+
+    background: white;
+
+    border-radius: var(--radius);
+
+    padding: 20px;
+
+    box-shadow: var(--shadow);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+.header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+}
+
+.header h3 {
+
+    margin-bottom: 4px;
+
+}
+
+.header p {
+
+    color: var(--text-secondary);
+
+}
+
+.video {
+
+    height: 220px;
+
+    background: #111827;
+
+    color: white;
+
+    border-radius: 8px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+.info {
+
+    display: flex;
+
+    justify-content: space-between;
+
+}
+
+.actions {
+
+    display: flex;
+
+    gap: 12px;
+
+}
+
+.status {
+
+    color: white;
+
+    padding: 6px 12px;
+
+    border-radius: 30px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+.LIVE {
+
+    background: #16a34a;
+
+}
+
+.STOPPED {
+
+    background: #6b7280;
+
+}
+
+.CONNECTING {
+
+    background: #eab308;
+
+}
+
+.ERROR {
+
+    background: #dc2626;
+
+}
+.errorText {
+    color: var(--danger);
+    font-size: 12px;
+}

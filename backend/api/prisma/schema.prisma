@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String @id @default(uuid()) @db.Uuid
+  name         String @db.VarChar(100)
+  email        String @unique @db.VarChar(255)
+  passwordHash String @map("password_hash") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userCameras UserCamera[]
+  alerts      Alert[]
+
+  @@map("users")
+}
+
+model Camera {
+  id      String @id @default(uuid()) @db.Uuid
+  rtspUrl String @unique @map("rtsp_url") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  userCameras UserCamera[]
+  alerts      Alert[]
+
+  @@map("cameras")
+}
+
+model UserCamera {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId   String @map("user_id") @db.Uuid
+  cameraId String @map("camera_id") @db.Uuid
+
+  name     String  @db.VarChar(100)
+  location String  @db.VarChar(255)
+  enabled  Boolean @default(true)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  user   User   @relation(fields: [userId], references: [id])
+  camera Camera @relation(fields: [cameraId], references: [id])
+
+  @@unique([userId, cameraId])
+  @@index([userId])
+  @@index([cameraId])
+  @@map("user_cameras")
+}
+
+model Alert {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId   String @map("user_id") @db.Uuid
+  cameraId String @map("camera_id") @db.Uuid
+
+  label String @db.VarChar(50)
+
+  confidence Float @db.Real
+
+  box Json?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user   User   @relation(fields: [userId], references: [id])
+  camera Camera @relation(fields: [cameraId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, cameraId, createdAt(sort: Desc)])
+  @@map("alerts")
+}

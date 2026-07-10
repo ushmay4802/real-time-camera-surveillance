@@ -1,0 +1,45 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.hint {
+    font-size: 14px;
+    color: var(--text-secondary, #666);
+    margin: -8px 0 0;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+
+    margin-top: 8px;
+
+    font-size: 14px;
+}
+
+.footer button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.footer button:disabled {
+    color: var(--text-secondary, #999);
+    cursor: not-allowed;
+}
+
+.footer a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}

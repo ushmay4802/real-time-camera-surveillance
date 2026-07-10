@@ -1,0 +1,17 @@
+.container {
+
+    display: flex;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+}
+
+.container select {
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+}

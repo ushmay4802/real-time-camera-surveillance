@@ -1,0 +1,38 @@
+.card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 12px;
+
+    box-shadow: var(--shadow);
+
+    margin-bottom: 16px;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info h3 {
+    margin: 0;
+}
+
+.info p {
+    color: var(--text-secondary);
+}
+
+.info small {
+    color: #94a3b8;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+}

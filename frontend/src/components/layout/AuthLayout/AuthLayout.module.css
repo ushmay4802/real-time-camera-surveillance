@@ -1,0 +1,20 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 24px;
+}
+
+.container h1 {
+    margin-bottom: 8px;
+}
+
+.container p {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+}

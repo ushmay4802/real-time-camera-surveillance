@@ -1,0 +1,61 @@
+.overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, .35);
+
+    z-index: 90;
+
+}
+
+.drawer {
+
+    position: fixed;
+
+    top: 0;
+
+    right: -460px;
+
+    width: 460px;
+
+    height: 100vh;
+
+    background: white;
+
+    box-shadow: -4px 0 20px rgba(0, 0, 0, .12);
+
+    transition: .3s ease;
+
+    z-index: 100;
+
+    padding: 24px;
+
+}
+
+.open {
+
+    right: 0;
+
+}
+
+.header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 24px;
+
+}
+
+.header button {
+
+    background: none;
+
+    font-size: 24px;
+
+}

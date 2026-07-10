@@ -1,0 +1,192 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: skylark-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: skylark
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: skylark-rabbitmq
+
+    restart: unless-stopped
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: skylark-mediamtx
+
+    restart: unless-stopped
+
+    ports:
+      - "8554:8554"
+      - "8889:8889"
+      - "8189:8189"
+      - "9997:9997"
+
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml
+
+    command: ["/mediamtx.yml"]
+
+  redis:
+    image: redis:7-alpine
+    container_name: skylark-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: api/Dockerfile
+    container_name: skylark-api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/api/.env
+    working_dir: /app/api
+    volumes:
+      - ./backend:/app
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: worker/Dockerfile
+
+    container_name: skylark-worker
+
+    restart: unless-stopped
+
+    depends_on:
+      - rabbitmq
+      - mediamtx
+
+    working_dir: /app/worker
+
+    env_file:
+      - ./backend/worker/.env
+
+    volumes:
+      - ./backend:/app
+
+  demo-camera-1:
+    image: linuxserver/ffmpeg
+    container_name: skylark-demo-camera-1
+
+    depends_on:
+      - mediamtx
+
+    restart: unless-stopped
+
+    volumes:
+      - ./demo:/videos
+
+    command: >
+      -re
+      -stream_loop -1
+      -i /videos/test1.mp4
+      -an
+      -c:v libx264
+      -preset ultrafast
+      -tune zerolatency
+      -pix_fmt yuv420p
+      -f rtsp
+      -rtsp_transport tcp
+      rtsp://mediamtx:8554/camera1
+
+  demo-camera-2:
+    image: linuxserver/ffmpeg
+    container_name: skylark-demo-camera-2
+
+    depends_on:
+      - mediamtx
+
+    restart: unless-stopped
+
+    volumes:
+      - ./demo:/videos
+
+    command: >
+      -re
+      -stream_loop -1
+      -i /videos/test2.mp4
+      -an
+      -c:v libx264
+      -preset ultrafast
+      -tune zerolatency
+      -pix_fmt yuv420p
+      -f rtsp
+      -rtsp_transport tcp
+      rtsp://mediamtx:8554/camera2
+
+  demo-camera-3:
+    image: linuxserver/ffmpeg
+    container_name: skylark-demo-camera-3
+
+    depends_on:
+      - mediamtx
+
+    restart: unless-stopped
+
+    volumes:
+      - ./demo:/videos
+
+    command: >
+      -re
+      -stream_loop -1
+      -i /videos/test3.mp4
+      -an
+      -c:v libx264
+      -preset ultrafast
+      -tune zerolatency
+      -pix_fmt yuv420p
+      -f rtsp
+      -rtsp_transport tcp
+      rtsp://mediamtx:8554/camera3
+
+  frontend:
+    build:
+      context: ./frontend
+
+    container_name: surveillance-frontend
+
+    depends_on:
+      - api
+
+    ports:
+      - "5173:80"
+
+volumes:
+
+  postgres-data:
+
+  rabbitmq-data:
+  redis-data:

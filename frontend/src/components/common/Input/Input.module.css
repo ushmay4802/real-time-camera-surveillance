@@ -1,0 +1,41 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.input {
+    padding: 12px 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    background: white;
+
+    transition: var(--transition);
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.errorInput {
+    border-color: var(--danger);
+}
+
+.error {
+    color: var(--danger);
+    font-size: 13px;
+}
+
+.input:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+}

@@ -1,0 +1,42 @@
+.button {
+    width: 100%;
+    padding: 12px 16px;
+
+    border: none;
+    border-radius: var(--radius);
+
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+
+    transition: var(--transition);
+}
+
+.primary {
+    background: var(--primary);
+}
+
+.primary:hover {
+    background: var(--primary-hover);
+}
+
+.secondary {
+    background: #64748b;
+}
+
+.secondary:hover {
+    background: #475569;
+}
+
+.danger {
+    background: var(--danger);
+}
+
+.danger:hover {
+    background: #dc2626;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

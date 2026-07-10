@@ -1,0 +1,61 @@
+.header {
+
+    height: 72px;
+
+    background: white;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 0 32px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+
+}
+
+.header h2 {
+
+    font-size: 22px;
+
+}
+
+.header span {
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+
+}
+
+.header nav {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 28px;
+
+}
+
+.header nav a {
+
+    color: var(--text-primary);
+
+    font-weight: 500;
+
+}
+
+.header button {
+
+    background: var(--danger);
+
+    color: white;
+
+    padding: 10px 16px;
+
+    border-radius: var(--radius);
+
+}

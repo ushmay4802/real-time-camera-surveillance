@@ -1,0 +1,8 @@
+.container {
+    min-height: 100vh;
+    background: var(--background);
+}
+
+.content {
+    padding: 24px;
+}

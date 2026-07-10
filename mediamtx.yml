@@ -1,0 +1,22 @@
+api: yes
+apiAddress: :9997
+
+metrics: yes
+metricsAddress: :9998
+
+authMethod: internal
+
+authInternalUsers:
+  - user: any
+    permissions:
+      - action: publish
+      - action: read
+      - action: playback
+      - action: api
+      - action: metrics
+
+pathDefaults:
+  source: publisher
+
+paths:
+  all:
