@@ -45,14 +45,14 @@ const useCameras = () => {
         setCameras((prev) => prev.filter((c) => c.id !== id));
     };
 
-    const startCamera = async (id: string) => {
-        await cameraService.startCamera(id);
+    const startCamera = async (id: string, userId: string | undefined) => {
+        await cameraService.startCamera(id, userId);
         // Actual status transition arrives over the WebSocket
         // ("CONNECTING" -> "LIVE"/"ERROR"), this call just queues it.
     };
 
-    const stopCamera = async (id: string) => {
-        await cameraService.stopCamera(id);
+    const stopCamera = async (id: string, userId: string | undefined) => {
+        await cameraService.stopCamera(id, userId);
     };
 
     return {

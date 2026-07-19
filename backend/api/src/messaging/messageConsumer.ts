@@ -23,24 +23,26 @@ export class CameraStatusConsumer {
                     message.content.toString(),
                 );
 
-                const users =
-                    await statusService.publishStatus(
-                        event,
-                    );
 
-                for (const user of users) {
+                // const users =
+                //     await statusService.publishStatus(
+                //         event,
+                //     );
 
-                    broadcaster.broadcastToUser(
-                        user.userId,
-                        {
-                            type: WS_EVENTS.CAMERA_STATUS,
-                            cameraId: event.cameraId,
-                            status: event.status,
-                            fps: event.fps,
-                        },
-                    );
+                // for (const user of users) {
 
-                }
+                broadcaster.broadcastToUser(
+                    event.userId,
+                    {
+                        type: WS_EVENTS.CAMERA_STATUS,
+                        cameraId: event.cameraId,
+                        status: event.status,
+                        fps: event.fps,
+                        userId: event.userId,
+                    },
+                );
+
+                // }
 
             },
 

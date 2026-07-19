@@ -19,6 +19,8 @@ export interface CameraStatusMessage {
 
     fps: number;
 
+    userId: string;
+
 }
 
 export interface AlertMessage {

@@ -28,10 +28,10 @@ export const deleteCamera = async (id: string): Promise<void> => {
 // queue/WS and the *real* status comes back later via the
 // realtime "stats" channel - so these calls intentionally do not
 // return a final status, only acknowledge the request was queued.
-export const startCamera = async (id: string): Promise<void> => {
-    await api.patch(`/cameras/${id}/start`);
+export const startCamera = async (id: string, userId: string | undefined): Promise<void> => {
+    await api.patch(`/cameras/${id}/${userId}/start`);
 };
 
-export const stopCamera = async (id: string): Promise<void> => {
-    await api.patch(`/cameras/${id}/stop`);
+export const stopCamera = async (id: string, userId: string | undefined): Promise<void> => {
+    await api.patch(`/cameras/${id}/${userId}/stop`);
 };

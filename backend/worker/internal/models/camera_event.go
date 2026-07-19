@@ -14,4 +14,6 @@ type CameraEvent struct {
 	CameraID string `json:"cameraId"`
 
 	RTSPURL string `json:"rtspUrl,omitempty"`
+
+	UserID string `json:"userId"`
 }

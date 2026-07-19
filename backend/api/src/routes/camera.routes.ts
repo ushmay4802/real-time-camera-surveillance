@@ -46,12 +46,12 @@ camera.delete(
 );
 
 camera.patch(
-    "/:id/start",
+    "/:id/:userId/start",
     controller.start.bind(controller),
 );
 
 camera.patch(
-    "/:id/stop",
+    "/:id/:userId/stop",
     controller.stop.bind(controller),
 );
 

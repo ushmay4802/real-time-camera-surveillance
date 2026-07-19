@@ -47,6 +47,8 @@ func (p *FFmpegPublisher) Start() error {
 		"-preset", "ultrafast",
 
 		"-tune", "zerolatency",
+		"-g", "1",
+		"-keyint_min", "1",
 
 		"-pix_fmt", "yuv420p",
 

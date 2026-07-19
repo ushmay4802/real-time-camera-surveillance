@@ -15,6 +15,7 @@ import (
 type Session struct {
 	CameraID string
 	RTSPURL  string
+	UserID   string
 
 	Context context.Context
 	Cancel  context.CancelFunc
@@ -34,15 +35,6 @@ func (s *Session) Run() {
 	defer func() {
 		_ = s.Decoder.Stop()
 		_ = s.Publisher.Stop()
-
-		if s.StatusPublisher != nil {
-			_ = s.StatusPublisher.PublishCameraStatus(models.CameraStatusEvent{
-				CameraID: s.CameraID,
-				Status:   models.CameraStatusStopped,
-				FPS:      0,
-			})
-		}
-
 		if s.onDone != nil {
 			s.onDone()
 		}
@@ -66,6 +58,7 @@ func (s *Session) Run() {
 			CameraID: s.CameraID,
 			Status:   models.CameraStatusConnecting,
 			FPS:      0,
+			UserID:   s.UserID,
 		})
 	}
 
@@ -111,6 +104,7 @@ func (s *Session) Run() {
 						CameraID: s.CameraID,
 						Status:   models.CameraStatusLive,
 						FPS:      5, // replace later with actual FPS
+						UserID:   s.UserID,
 					})
 				}
 			}

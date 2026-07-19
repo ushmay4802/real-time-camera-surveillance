@@ -115,8 +115,7 @@ const CameraPlayer = ({
         let cancelled = false;
         let pc: RTCPeerConnection | null = null;
 
-        const timer = setTimeout(async () => {
-
+        (async () => {
             if (cancelled) return;
 
             pc = new RTCPeerConnection({
@@ -130,58 +129,39 @@ const CameraPlayer = ({
             pcRef.current = pc;
 
             pc.onconnectionstatechange = () => {
-                console.log(
-                    "Connection:",
-                    pc!.connectionState,
-                );
+                console.log("Connection:", pc!.connectionState);
             };
 
             pc.oniceconnectionstatechange = () => {
-                console.log(
-                    "ICE:",
-                    pc!.iceConnectionState,
-                );
+                console.log("ICE:", pc!.iceConnectionState);
             };
 
             pc.ontrack = (event) => {
-
                 console.log("Track received");
 
                 if (!videoRef.current) return;
 
                 videoRef.current.srcObject = event.streams[0];
-
-                videoRef.current
-                    .play()
-                    .catch(console.error);
+                videoRef.current.play().catch(console.error);
             };
 
             try {
-                await negotiate(
-                    streamUrl,
-                    pc,
-                );
+                await negotiate(streamUrl, pc);
             } catch (err) {
                 console.error(err);
             }
-
-        }, 2000);
+        })();
 
         return () => {
-
             cancelled = true;
-
-            clearTimeout(timer);
 
             pc?.close();
 
             if (pcRef.current === pc) {
                 pcRef.current = null;
             }
+
             console.log("Effect cleanup");
-
-
-
         };
 
     }, [cameraId, streamUrl, connect]);

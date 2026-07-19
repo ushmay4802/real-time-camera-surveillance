@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"camera-surveillance-system/internal/detector"
+	"camera-surveillance-system/internal/models"
 	"camera-surveillance-system/internal/publisher"
 )
 
@@ -23,10 +24,18 @@ func NewManager(status publisher.StatusPublisher, alert publisher.AlertPublisher
 		MEDIAMTX_RTSP_URL: MEDIAMTX_RTSP_URL,
 	}
 }
-func (m *Manager) Start(cameraID, rtspURL string) error {
+func (m *Manager) Start(cameraID, rtspURL, userID string) error {
 
-	if m.registry.Exists(cameraID) {
-		log.Printf("Camera %s already running", cameraID)
+	if m.registry.Acquire(cameraID) {
+		if m.status != nil {
+			_ = m.status.PublishCameraStatus(models.CameraStatusEvent{
+				CameraID: cameraID,
+				Status:   models.CameraStatusLive,
+				FPS:      5, // replace later with actual FPS
+				UserID:   userID,
+			})
+		}
+		log.Printf("Camera already running")
 		return nil
 	}
 
@@ -35,6 +44,7 @@ func (m *Manager) Start(cameraID, rtspURL string) error {
 	session := &Session{
 		CameraID: cameraID,
 		RTSPURL:  rtspURL,
+		UserID:   userID,
 
 		Context: ctx,
 		Cancel:  cancel,
@@ -49,7 +59,9 @@ func (m *Manager) Start(cameraID, rtspURL string) error {
 		StatusPublisher: m.status,
 		AlertPublisher:  m.alert,
 
-		onDone: func() { m.registry.Remove(cameraID) },
+		onDone: func() {
+			m.registry.Cleanup(cameraID)
+		},
 	}
 
 	m.registry.Add(session)
@@ -61,21 +73,42 @@ func (m *Manager) Start(cameraID, rtspURL string) error {
 	return nil
 }
 
-func (m *Manager) Stop(cameraID string) error {
-
+func (m *Manager) Stop(cameraID, userID string) error {
 	session, exists := m.registry.Remove(cameraID)
 	if !exists {
 		log.Printf("Camera %s is not running", cameraID)
 		return nil
 	}
 
+	if session == nil {
+		// Camera is still running for other users.
+		if m.status != nil {
+			_ = m.status.PublishCameraStatus(models.CameraStatusEvent{
+				CameraID: cameraID,
+				Status:   models.CameraStatusStopped,
+				FPS:      0,
+				UserID:   userID,
+			})
+		}
+		return nil
+	}
+
+	// Last user disconnected.
 	session.Cancel()
+
+	if m.status != nil {
+		_ = m.status.PublishCameraStatus(models.CameraStatusEvent{
+			CameraID: cameraID,
+			Status:   models.CameraStatusStopped,
+			FPS:      0,
+			UserID:   userID,
+		})
+	}
 
 	log.Printf("Session removed for %s", cameraID)
 
 	return nil
 }
-
 func (m *Manager) Get(cameraID string) (*Session, bool) {
 	return m.registry.Get(cameraID)
 }

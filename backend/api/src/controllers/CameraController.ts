@@ -91,6 +91,8 @@ export class CameraController {
     async start(c: Context) {
 
         const cameraId = c.req.param("id");
+        const userId = c.req.param("userId");
+
 
         if (!cameraId) {
             return c.json(
@@ -99,7 +101,14 @@ export class CameraController {
             );
         }
 
-        const result = await this.cameraService.start(cameraId);
+        if (!userId) {
+            return c.json(
+                { message: "User ID is required." },
+                400,
+            );
+        }
+
+        const result = await this.cameraService.start(cameraId, userId);
 
         return c.json(result);
 
@@ -108,14 +117,21 @@ export class CameraController {
     async stop(c: Context) {
 
         const cameraId = c.req.param("id");
+        const userId = c.req.param("userId");
         if (!cameraId) {
             return c.json(
                 { message: "Camera ID is required." },
                 400,
             );
         }
+        if (!userId) {
+            return c.json(
+                { message: "User ID is required." },
+                400,
+            );
+        }
 
-        const result = await this.cameraService.stop(cameraId);
+        const result = await this.cameraService.stop(cameraId, userId);
 
         return c.json(result);
 

@@ -7,19 +7,23 @@ import { CameraStatus } from "../../../types/camera";
 import type { Camera, CameraRuntime } from "../../../types/camera";
 import { getErrorMessage } from "../../../api/axios";
 import styles from "./CameraCard.module.css";
+import { useAuth } from "../../../context/AuthContext";
 
 
 interface CameraCardProps {
     camera: Camera;
     runtime: CameraRuntime;
-    onStart: (id: string) => Promise<void>;
-    onStop: (id: string) => Promise<void>;
+    onStart: (id: string, userId: string | undefined) => Promise<void>;
+    onStop: (id: string, userId: string | undefined) => Promise<void>;
 }
 
 
 const CameraCard = ({ camera, runtime, onStart, onStop }: CameraCardProps) => {
     const [pending, setPending] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
+
+    const { user } = useAuth();
+
 
     const isBusy =
         runtime.status === CameraStatus.CONNECTING;
@@ -32,9 +36,8 @@ const CameraCard = ({ camera, runtime, onStart, onStop }: CameraCardProps) => {
         setPending(true);
         setActionError(null);
         try {
-            await onStart(camera.cameraId);
+            await onStart(camera.cameraId, user?.id);
         } catch (err) {
-
             setActionError(getErrorMessage(err, "Could not start camera - worker not connected yet."));
             console.error(err);
         } finally {
@@ -46,7 +49,7 @@ const CameraCard = ({ camera, runtime, onStart, onStop }: CameraCardProps) => {
         setPending(true);
         setActionError(null);
         try {
-            await onStop(camera.cameraId);
+            await onStop(camera.cameraId, user?.id);
         } catch (err) {
             setActionError(getErrorMessage(err, "Could not stop camera - worker not connected yet."));
             console.error(err);

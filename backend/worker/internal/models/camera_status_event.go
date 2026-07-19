@@ -13,4 +13,5 @@ type CameraStatusEvent struct {
 	CameraID string       `json:"cameraId"`
 	Status   CameraStatus `json:"status"`
 	FPS      int          `json:"fps"`
+	UserID   string       `json:"userId"`
 }

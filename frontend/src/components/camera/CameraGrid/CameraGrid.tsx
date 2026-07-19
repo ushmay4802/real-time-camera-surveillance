@@ -8,8 +8,8 @@ import styles from "./CameraGrid.module.css";
 interface CameraGridProps {
     cameras: Camera[];
     getRuntime: (cameraId: string) => CameraRuntime;
-    onStart: (id: string) => Promise<void>;
-    onStop: (id: string) => Promise<void>;
+    onStart: (id: string, userId: string | undefined) => Promise<void>;
+    onStop: (id: string, userId: string | undefined) => Promise<void>;
 }
 
 const CameraGrid = ({ cameras, getRuntime, onStart, onStop }: CameraGridProps) => {

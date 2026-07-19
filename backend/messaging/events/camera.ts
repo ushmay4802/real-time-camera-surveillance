@@ -17,17 +17,20 @@ export interface CameraStartEvent {
     action: typeof CAMERA_ACTIONS.START;
     cameraId: string;
     rtspUrl: string;
+    userId: string;
 }
 
 export interface CameraStopEvent {
     action: typeof CAMERA_ACTIONS.STOP;
     cameraId: string;
+    userId: string;
 }
 
 export interface CameraStatusEvent {
     cameraId: string;
     status: CameraStatus;
     fps: number;
+    userId: string;
 }
 
 export type CameraEvent =

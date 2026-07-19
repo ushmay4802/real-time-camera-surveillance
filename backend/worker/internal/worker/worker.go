@@ -56,6 +56,7 @@ func (w *Worker) Start() error {
 				return w.manager.Start(
 					event.CameraID,
 					event.RTSPURL,
+					event.UserID,
 				)
 
 			case models.CameraStop:
@@ -64,6 +65,7 @@ func (w *Worker) Start() error {
 
 				return w.manager.Stop(
 					event.CameraID,
+					event.UserID,
 				)
 
 			default:

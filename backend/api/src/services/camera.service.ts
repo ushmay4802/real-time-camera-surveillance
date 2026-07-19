@@ -205,7 +205,7 @@ export class CameraService {
 
     }
 
-    async start(cameraId: string) {
+    async start(cameraId: string, userId: string) {
 
         const camera =
             await this.cameraRepository.findById(cameraId);
@@ -222,6 +222,8 @@ export class CameraService {
 
             rtspUrl: camera.rtspUrl,
 
+            userId: userId,
+
         });
 
         return {
@@ -230,7 +232,7 @@ export class CameraService {
 
     }
 
-    async stop(cameraId: string) {
+    async stop(cameraId: string, userId: string) {
 
         const camera =
             await this.cameraRepository.findById(cameraId);
@@ -244,6 +246,8 @@ export class CameraService {
             action: CAMERA_ACTIONS.STOP,
 
             cameraId: camera.id,
+
+            userId: userId,
 
         });
 
