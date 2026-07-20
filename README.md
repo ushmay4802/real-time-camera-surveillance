@@ -32,9 +32,9 @@ The system is designed using independent microservices where authentication, cam
 
 # Demo
 
-A walkthrough of the live Stream is available below.
+A walkthrough of the live Stream is available below
 
-🎥 **Project Demo:** [Watch Demo](docs/demo/surveillance-demo.mp4)
+🎥 **Project Demo:** [Watch Demo](docs/demo/surveillance_demo.mp4)
 
 ---
 
