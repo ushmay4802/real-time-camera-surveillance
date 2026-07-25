@@ -34,7 +34,10 @@ The system is designed using independent microservices where authentication, cam
 
 A walkthrough of the live Stream is available below
 
-🎥 **Project Demo:** [Watch Demo](docs/demo/surveillance_demo.mp4)
+🎥 **Project Demo (MP4):** [Watch Demo](docs/demo/surveillance_demo.mp4)
+
+📺 **Project Demo (YouTube):** [Watch on YouTube](https://youtu.be/-Z5zs6M6bxU)
+
 
 ---
 
