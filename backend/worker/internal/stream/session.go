@@ -3,11 +3,13 @@ package stream
 import (
 	"context"
 	"log"
-	"math/rand"
+	"path"
+	"strings"
 	"time"
 
 	"camera-surveillance-system/internal/detector"
 	"camera-surveillance-system/internal/frame"
+	"camera-surveillance-system/internal/mediamtx"
 	"camera-surveillance-system/internal/models"
 	"camera-surveillance-system/internal/publisher"
 )
@@ -30,6 +32,8 @@ type Session struct {
 	onDone func()
 }
 
+const AlertCooldown = 30 * time.Second
+
 func (s *Session) Run() {
 
 	defer func() {
@@ -46,6 +50,7 @@ func (s *Session) Run() {
 		log.Printf("Decoder start failed: %v", err)
 		return
 	}
+	log.Printf("RTSP URL: %s", s.RTSPURL)
 
 	if err := s.Publisher.Start(); err != nil {
 		log.Printf("Publisher start failed: %v", err)
@@ -65,7 +70,9 @@ func (s *Session) Run() {
 	reader := frame.NewReader(s.Decoder.Stdout())
 
 	liveSent := false
-	lastAlert := time.Now().Add(-30 * time.Second)
+	lastAlert := time.Now().Add(-AlertCooldown)
+	multiplePeoplePresent := false
+	noPersonsPresent := false
 
 	for {
 
@@ -84,7 +91,20 @@ func (s *Session) Run() {
 				return
 			}
 
-			processed, err := s.Detector.Process(frm)
+			if frm == nil {
+				log.Printf("Reader returned nil frame")
+				continue
+			}
+
+			if frm.Image == nil {
+				log.Printf("Reader returned frame with nil image")
+				continue
+			}
+
+			// processed, detections, err := s.Detector.Process(frm)
+			start := time.Now()
+			processed, detections, err := s.Detector.Process(frm)
+			log.Printf("Inference: %v", time.Since(start))
 			if err != nil {
 				log.Printf("Detector failed: %v", err)
 				continue
@@ -97,42 +117,92 @@ func (s *Session) Run() {
 
 			// First successful frame means MediaMTX is live.
 			if !liveSent {
+
+				streamPath := path.Base(strings.TrimRight(s.RTSPURL, "/"))
+
+				if err := mediamtx.WaitForPath(
+					s.Context,
+					streamPath,
+					5*time.Second,
+				); err != nil {
+					log.Printf("MediaMTX path not ready: %v", err)
+					return
+				}
+
 				liveSent = true
 
 				if s.StatusPublisher != nil {
 					_ = s.StatusPublisher.PublishCameraStatus(models.CameraStatusEvent{
 						CameraID: s.CameraID,
 						Status:   models.CameraStatusLive,
-						FPS:      5, // replace later with actual FPS
+						FPS:      5,
 						UserID:   s.UserID,
 					})
 				}
 			}
 
-			log.Println("Frame published", lastAlert)
+			log.Println("Frame published", s.CameraID)
 
-			if s.AlertPublisher != nil &&
-				time.Since(lastAlert) >= 30*time.Second {
+			personCount := len(detections)
 
-				lastAlert = time.Now()
+			if personCount > 1 {
 
-				_ = s.AlertPublisher.PublishAlert(
-					models.AlertEvent{
-						CameraID: s.CameraID,
-						Label:    "person",
+				if !multiplePeoplePresent &&
+					s.AlertPublisher != nil &&
+					time.Since(lastAlert) >= AlertCooldown {
 
-						Confidence: 0.90 + rand.Float32()*0.09,
+					now := time.Now()
 
-						Box: models.BoundingBox{
-							X: 120,
-							Y: 80,
-							W: 180,
-							H: 250,
+					lastAlert = now
+					multiplePeoplePresent = true
+
+					first := detections[0]
+
+					if err := s.AlertPublisher.PublishAlert(
+						models.AlertEvent{
+							CameraID:   s.CameraID,
+							Label:      "multiple_persons",
+							Confidence: first.Confidence,
+							Box: models.BoundingBox{
+								X: first.Left,
+								Y: first.Top,
+								W: first.Right - first.Left,
+								H: first.Bottom - first.Top,
+							},
+							Timestamp:   now.UTC(),
+							PersonCount: personCount,
+							UserId:      s.UserID,
 						},
+					); err != nil {
+						log.Printf("Failed to publish alert: %v", err)
+					}
+				}
 
-						Timestamp: time.Now().UTC(),
-					},
-				)
+			} else {
+				multiplePeoplePresent = false
+
+				if personCount == 0 &&
+					!noPersonsPresent &&
+					s.AlertPublisher != nil {
+
+					noPersonsPresent = true
+
+					if err := s.AlertPublisher.PublishAlert(
+						models.AlertEvent{
+							CameraID:    s.CameraID,
+							Label:       "no_persons",
+							Timestamp:   time.Now().UTC(),
+							PersonCount: 0,
+							UserId:      s.UserID,
+						},
+					); err != nil {
+						log.Printf("Failed to publish alert: %v", err)
+					}
+				}
+
+				if personCount > 0 {
+					noPersonsPresent = false
+				}
 			}
 
 		}

@@ -16,7 +16,64 @@ interface CameraPlayerProps {
     connect: boolean;
 }
 
-const negotiate = async (
+// const negotiate = async (
+//     streamUrl: string,
+//     pc: RTCPeerConnection,
+// ): Promise<void> => {
+
+//     console.log("Negotiating:", streamUrl);
+
+//     pc.addTransceiver("video", {
+//         direction: "recvonly",
+//     });
+
+//     const offer = await pc.createOffer();
+//     await pc.setLocalDescription(offer);
+
+//     await new Promise<void>((resolve) => {
+//         if (pc.iceGatheringState === "complete") {
+//             resolve();
+//             return;
+//         }
+
+//         const listener = () => {
+//             if (pc.iceGatheringState === "complete") {
+//                 pc.removeEventListener(
+//                     "icegatheringstatechange",
+//                     listener,
+//                 );
+//                 resolve();
+//             }
+//         };
+
+//         pc.addEventListener(
+//             "icegatheringstatechange",
+//             listener,
+//         );
+//     });
+
+//     const response = await fetch(streamUrl, {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/sdp",
+//         },
+//         body: pc.localDescription!.sdp,
+//     });
+
+//     if (!response.ok) {
+//         throw new Error(
+//             `WebRTC negotiation failed (${response.status})`,
+//         );
+//     }
+
+//     const answer = await response.text();
+
+//     await pc.setRemoteDescription({
+//         type: "answer",
+//         sdp: answer,
+//     });
+// };
+const negotiate_new = async (
     streamUrl: string,
     pc: RTCPeerConnection,
 ): Promise<void> => {
@@ -52,18 +109,49 @@ const negotiate = async (
         );
     });
 
-    const response = await fetch(streamUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/sdp",
-        },
-        body: pc.localDescription!.sdp,
-    });
+    const maxRetries = 10;
+    let response: Response | null = null;
 
-    if (!response.ok) {
-        throw new Error(
-            `WebRTC negotiation failed (${response.status})`,
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+
+        console.log(
+            `WHEP negotiate attempt ${attempt}/${maxRetries}`,
         );
+
+        response = await fetch(streamUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/sdp",
+            },
+            body: pc.localDescription!.sdp,
+        });
+
+        if (response.ok) {
+            console.log("WHEP negotiation succeeded");
+            break;
+        }
+
+        console.warn(
+            `WHEP failed (${response.status}) attempt ${attempt}/${maxRetries}`,
+        );
+
+        // Retry only if the stream isn't ready yet.
+        if (response.status === 404 && attempt < maxRetries) {
+            await new Promise((resolve) =>
+                setTimeout(resolve, 300),
+            );
+            continue;
+        }
+
+        const body = await response.text();
+
+        throw new Error(
+            `WebRTC negotiation failed (${response.status}): ${body}`,
+        );
+    }
+
+    if (!response || !response.ok) {
+        throw new Error("Timed out waiting for WHEP endpoint");
     }
 
     const answer = await response.text();
@@ -72,6 +160,8 @@ const negotiate = async (
         type: "answer",
         sdp: answer,
     });
+
+    console.log("Remote description set");
 };
 
 const CameraPlayer = ({
@@ -94,8 +184,7 @@ const CameraPlayer = ({
 
     useEffect(() => {
         console.log("Effect started");
-        if (!connect) {
-
+        if (!connect || status !== CameraStatus.LIVE) {
             pcRef.current?.close();
             pcRef.current = null;
 
@@ -146,7 +235,7 @@ const CameraPlayer = ({
             };
 
             try {
-                await negotiate(streamUrl, pc);
+                await negotiate_new(streamUrl, pc);
             } catch (err) {
                 console.error(err);
             }
@@ -164,7 +253,7 @@ const CameraPlayer = ({
             console.log("Effect cleanup");
         };
 
-    }, [cameraId, streamUrl, connect]);
+    }, [cameraId, streamUrl, connect, status]);
 
     useEffect(() => {
 

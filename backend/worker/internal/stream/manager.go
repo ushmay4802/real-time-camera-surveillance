@@ -41,6 +41,13 @@ func (m *Manager) Start(cameraID, rtspURL, userID string) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
+	det := detector.New()
+
+	if err := det.Init(); err != nil {
+		cancel()
+		return err
+	}
+
 	session := &Session{
 		CameraID: cameraID,
 		RTSPURL:  rtspURL,
@@ -51,7 +58,7 @@ func (m *Manager) Start(cameraID, rtspURL, userID string) error {
 
 		Decoder: NewFFmpeg(rtspURL),
 
-		Detector: detector.New(),
+		Detector: det,
 
 		Publisher: publisher.NewFFmpegPublisher(
 			m.MEDIAMTX_RTSP_URL + "/" + cameraID,

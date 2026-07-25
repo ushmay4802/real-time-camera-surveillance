@@ -59,6 +59,7 @@ func (c *Client) ConsumeCameraEvents(
 				}
 
 				if err := handler(event); err != nil {
+					fmt.Printf("Camera event failed: %+v\n", err)
 					_ = msg.Nack(false, true)
 					continue
 				}

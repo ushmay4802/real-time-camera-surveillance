@@ -3,15 +3,11 @@ package detector
 import "camera-surveillance-system/internal/frame"
 
 type Detector interface {
-	Process(*frame.Frame) (*frame.Frame, error)
+	Init() error
+	Process(*frame.Frame) (*frame.Frame, []Detection, error)
+	Close() error
 }
-
-type PassThrough struct{}
 
 func New() Detector {
-	return &PassThrough{}
-}
-
-func (p *PassThrough) Process(f *frame.Frame) (*frame.Frame, error) {
-	return f, nil
+	return &YOLODetector{}
 }
