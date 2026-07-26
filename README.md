@@ -660,7 +660,6 @@ http://localhost:5173
 
 # Future Improvements
 
-* YOLOv8 based object detection
 * Multi-class object detection
 * GPU acceleration
 * Video recording
